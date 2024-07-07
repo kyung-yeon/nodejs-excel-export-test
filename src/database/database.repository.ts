@@ -4,7 +4,7 @@ import { postProcessResponse, wrapIdentifier } from './support';
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()
-export class ConnectionRepository {
+export class DatabaseRepository {
     private readonly db;
 
     constructor(private readonly configService: ConfigService) {
