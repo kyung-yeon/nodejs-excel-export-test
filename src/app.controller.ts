@@ -3,10 +3,16 @@ import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('/file')
+  getExcelFile() {
+    return this.appService.getExcelFile();
+  }
+
+
+  @Get('/stream')
+  getExcelFileStream() {
+    return this.appService.getExcelFileStream();
   }
 }
