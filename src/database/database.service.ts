@@ -5,7 +5,11 @@ import { DatabaseRepository } from './database.repository';
 export class DatabaseService {
   constructor(private readonly repository: DatabaseRepository) { }
 
-  getFile() {
-    return this.repository.getData();
+  async getSync() {
+    return this.repository.getSyncData();
+  }
+
+  getAsync() {
+    return this.repository.getAsyncData();
   }
 }

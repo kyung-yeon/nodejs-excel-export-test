@@ -1,18 +1,19 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
 import { AppService } from './app.service';
+import { Response } from 'express';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
-  @Get('/file')
-  getExcelFile() {
-    return this.appService.getExcelFile();
+  @Get('/sync')
+  getExcelSync(@Res() res: Response) {
+    return this.appService.getSync(res);
   }
 
 
   @Get('/stream')
-  getExcelFileStream() {
-    return this.appService.getExcelFileStream();
+  getExcelFileStream(@Res() res: Response) {
+    return this.appService.getAsync(res);
   }
 }

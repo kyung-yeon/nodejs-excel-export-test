@@ -16,7 +16,7 @@ function getRandomNumber(min, max) {
     const configService = app.get(ConfigService);
     const repository = app.get(DatabaseRepository);
 
-    await repository.getData();
+    // await repository.getData();
 
     // 주문 데이터를 만든다
 
