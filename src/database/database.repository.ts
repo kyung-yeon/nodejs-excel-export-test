@@ -86,4 +86,10 @@ export class DatabaseRepository {
             .groupBy(['o.orders_id'])
             .stream()
     }
+
+    async bulkInsert(table: string, data: unknown[]) {
+        console.time('insert - [' + table + '] rows -> ' + data.length);
+        await this.db.batchInsert(table, data);
+        console.timeEnd('insert - [' + table + '] rows -> ' + data.length);
+    }
 }
