@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { DatabaseService } from './database.service';
 import { DatabaseRepository } from './database.repository';
+import { DatabaseService } from './database.service';
 
 @Module({
   imports: [],
