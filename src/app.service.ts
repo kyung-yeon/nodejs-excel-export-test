@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from './database/database.service';
 import * as exceljs from 'exceljs';
 import { Response } from 'express';
-import { Stream, Transform } from 'stream';
+import { PassThrough, Transform } from 'stream';
+import { DatabaseService } from './database/database.service';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly databaseService: DatabaseService) { }
+  constructor(
+    private readonly databaseService: DatabaseService,
+  ) { }
 
   getHeaders() {
     return [
@@ -16,6 +18,7 @@ export class AppService {
       { header: '주문자 주소', key: 'ordererAddress', width: 20 },
       { header: '주문 총 원금액', key: 'orderOriginPrice', width: 20 },
       { header: '주문 총 할인금액', key: 'orderPrice', width: 20 },
+      { header: '주문 개수', key: 'productCount', width: 20 },
       { header: '주문 총 결제 후 금액', key: 'paidPrice', width: 20 },
       { header: '상품명 나열', key: 'productNames', width: 20 },
       { header: '상품 카테고리 나열', key: 'productCategoryNames', width: 20 },
@@ -26,14 +29,15 @@ export class AppService {
   }
 
   async getSync(res: Response) {
-    const list = await this.databaseService.getSync();
+    const list = await this.databaseService.sync();
+    console.time('excel time');
 
     const workbook = new exceljs.Workbook();
     const worksheet = workbook.addWorksheet('Sheet');
     worksheet.columns = this.getHeaders();
 
     for (const row of list) {
-      worksheet.addRow(row);
+      worksheet.addRow(row).commit();
     }
 
     res.setHeader(
@@ -46,17 +50,20 @@ export class AppService {
     );
 
     await workbook.xlsx.write(res);
+    console.timeEnd('excel time');
     res.end();
   }
 
   getAsync(res: Response) {
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename=excel-stream.xlsx');
+    const listStream = this.databaseService.stream();
+    console.time('excel time');
 
-    const passThrough = new Stream.PassThrough();
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=excel-transform.xlsx');
+
+    const passThrough = new PassThrough();
     passThrough.pipe(res);
 
-    const listStream = this.databaseService.getAsync();
 
     const workbook = new exceljs.stream.xlsx.WorkbookWriter({
       stream: passThrough,
@@ -67,13 +74,27 @@ export class AppService {
     worksheet.columns = this.getHeaders();
 
     listStream.on('data', (data) => {
-      console.log('data', data)
       worksheet.addRow(data).commit();
     });
 
     listStream.on('end', async () => {
       await workbook.commit();
+      console.timeEnd('excel time');
       passThrough.end();
     });
+  }
+
+  async getTransform() {
+    const [orderUserIds, categories] = await Promise.all([
+      this.databaseService.findOrderUserIds(),
+      this.databaseService.findCategories(),
+    ])
+    const userIds = orderUserIds.map(({ userId }) => userId);
+    const users = await this.databaseService.findUsersByUserIds(userIds)
+    const userMap = new Map(users.map((user) => [user.userId, user]));
+
+    const listStream = this.databaseService.transform(userMap, categories);
+    console.timeEnd('query time');
+    return listStream;
   }
 }
