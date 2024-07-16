@@ -27,24 +27,31 @@ export class DatabaseService {
     return result;
   }
 
-  transform (userMap, categoryMap): PassThrough {
+  transform (userMap, categories): PassThrough {
     this.before();
-    console.log('c');
+    console.log('c', categories);
     return this.databaseRepository.getTransformData().pipe(
       new Transform({
         readableObjectMode: true,
         writableObjectMode: true,
         transform(row, encoding, callback) {
           try {
+            // console.log('============================');
             const user = userMap.get(row.userId);
+            // // console.log('user', row.userId, user);
             // const category = categoryMap.get(row.categoryId);
+
+            const rowCategories = row.categoryIds.split(',')
+            // console.log('rowCategories', rowCategories);
+            const targetCategories = categories.filter(c => rowCategories.includes(c.categoryId.toString()))
+            // console.log('targetCategories', targetCategories);
 
             const line = {
               ...row,
               ordererName: user?.name ?? '-',
               ordererAge: user?.age ?? '-',
               ordererAddress: user?.address ?? '-',
-              productCategoryNames: '-',
+              productCategoryNames: targetCategories.map(c => c.name).join(',') ?? '-',
             };
 
             this.push(line);
@@ -65,7 +72,7 @@ export class DatabaseService {
     return this.databaseRepository.findCategories()
   }
 
-  async findOrdersByUserIds (userIds) {
-    return this.databaseRepository.findOrdersByUserIds(userIds)
+  async findUsersByUserIds (userIds) {
+    return this.databaseRepository.findUsersByUserIds(userIds)
   }
 }

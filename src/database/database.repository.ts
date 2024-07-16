@@ -141,7 +141,7 @@ export class DatabaseRepository {
       return this.db('category').select();
     }
 
-    async findOrdersByUserIds(userIds) {
-      return this.db('orders').whereIn('userId', userIds).select();
+    async findUsersByUserIds(userIds) {
+      return this.db('user').whereIn('userId', userIds).select();
     }
 }

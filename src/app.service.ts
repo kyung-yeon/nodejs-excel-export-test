@@ -36,11 +36,9 @@ export class AppService {
     const worksheet = workbook.addWorksheet('Sheet');
     worksheet.columns = this.getHeaders();
 
-    console.log('state 1');
     for (const row of list) {
       worksheet.addRow(row).commit();
     }
-    console.log('state 2');
 
     res.setHeader(
       'Content-Type',
@@ -51,9 +49,7 @@ export class AppService {
       'attachment; filename=' + 'excel-sync.xlsx',
     );
 
-    console.log('state 3');
     await workbook.xlsx.write(res);
-    console.log('state 4');
     console.timeEnd('excel time');
     res.end();
   }
@@ -94,15 +90,10 @@ export class AppService {
       this.databaseService.findCategories(),
     ])
     const userIds = orderUserIds.map(({ userId }) => userId);
-    const users = await this.databaseService.findOrdersByUserIds(userIds)
+    const users = await this.databaseService.findUsersByUserIds(userIds)
     const userMap = new Map(users.map((user) => [user.userId, user]));
-    const categoryMap = new Map(categories.map((category) => [category.categoryId, category]));
 
-    console.log('users', users[0]);
-    console.log('userMap', userMap.get(users[0].userId));
-
-
-    const listStream = this.databaseService.transform(userMap, categoryMap);
+    const listStream = this.databaseService.transform(userMap, categories);
     console.timeEnd('query time');
     return listStream;
   }
