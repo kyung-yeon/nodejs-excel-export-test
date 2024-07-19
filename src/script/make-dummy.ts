@@ -41,9 +41,9 @@ function getRandomNumber(min, max) {
     const users = new Array(2_000_000).fill({}).map((data, idx) => {
         return {
             userId: idx + 1,
-            name: FIXTURE_NAMES[getRandomNumber(0, 999)],
+            name: FIXTURE_NAMES[getRandomNumber(0, 299)],
             age: getRandomNumber(10, 80),
-            address: FIXTURE_ADDRESSES[getRandomNumber(0, 999)],
+            address: FIXTURE_ADDRESSES[getRandomNumber(0, 19)],
         }
     });
     // await repository.bulkInsert('user', users);
