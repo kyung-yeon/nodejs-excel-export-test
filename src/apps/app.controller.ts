@@ -4,16 +4,19 @@ import { Response } from 'express';
 import { PassThrough } from 'stream';
 import * as exceljs from 'exceljs';
 import { getExcelHeaders } from './helper';
+import { PRINT_TIME_DEBUG } from './constants';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
-  @Get('/sync')
+  @Get('/excel')
   async sync(@Res() res: Response) {
-    const list = await this.appService.getSync();
+    const list = await this.appService.getExcel();
 
-    console.time('excel time');
+    if (PRINT_TIME_DEBUG) {
+      console.time('excel time');
+    }
 
     const workbook = new exceljs.Workbook();
     const worksheet = workbook.addWorksheet('Sheet');
@@ -33,7 +36,9 @@ export class AppController {
     );
 
     await workbook.xlsx.write(res);
-    console.timeEnd('excel time');
+    if (PRINT_TIME_DEBUG) {
+      console.timeEnd('excel time');
+    }
     res.end();
   }
 
@@ -46,7 +51,9 @@ export class AppController {
     passThrough.pipe(res);
 
     const listStream = this.appService.getAsync();
-    console.time('excel time');
+    if (PRINT_TIME_DEBUG) {
+      console.time('excel time');
+    }
 
     const workbook = new exceljs.stream.xlsx.WorkbookWriter({
       stream: passThrough,
@@ -62,7 +69,9 @@ export class AppController {
 
     listStream.on('end', async () => {
       await workbook.commit();
-      console.timeEnd('excel time');
+      if (PRINT_TIME_DEBUG) {
+        console.timeEnd('excel time');
+      }
       passThrough.end();
     });
   }
@@ -70,7 +79,9 @@ export class AppController {
   @Get('/transform')
   async transform(@Res() res: Response) {
     const resultStream = await this.appService.getTransform();
-    console.time('excel time');
+    if (PRINT_TIME_DEBUG) {
+      console.time('excel time');
+    }
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename=excel-transform.xlsx');
@@ -91,9 +102,10 @@ export class AppController {
     });
 
     resultStream.on('end', async () => {
-      console.log('end!');
       await workbook.commit();
-      console.timeEnd('excel time');
+      if (PRINT_TIME_DEBUG) {
+        console.timeEnd('excel time');
+      }
       passThrough.end();
     });
   }

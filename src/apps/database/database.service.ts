@@ -1,21 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseRepository } from './database.repository';
 import { PassThrough, Transform } from 'stream';
+import { PRINT_TIME_DEBUG } from '../constants';
 
 @Injectable()
 export class DatabaseService {
   constructor(private readonly databaseRepository: DatabaseRepository) {}
 
   before() {
-    console.time('query time');
+    if (PRINT_TIME_DEBUG) {
+      console.time('query time');
+    }
   }
   after() {
-    console.timeEnd('query time');
+    if (PRINT_TIME_DEBUG) {
+      console.timeEnd('query time');
+    }
   }
 
-  async sync () {
+  async excel () {
     this.before();
-    const result = await this.databaseRepository.getSyncData()
+    const result = await this.databaseRepository.getExcelData()
     this.after();
     return result;
   }

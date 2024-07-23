@@ -7,8 +7,8 @@ export class AppService {
     private readonly databaseService: DatabaseService,
   ) { }
 
-  async getSync() {
-    return this.databaseService.sync();
+  async getExcel() {
+    return this.databaseService.excel();
   }
 
   getAsync() {

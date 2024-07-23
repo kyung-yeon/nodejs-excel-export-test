@@ -3,6 +3,7 @@ import knex, { Knex } from 'knex';
 import { postProcessResponse, wrapIdentifier } from './support';
 import { ConfigService } from "@nestjs/config";
 import { PassThrough } from 'stream';
+import { EXPORT_DATA_LIMIT } from '../constants';
 
 @Injectable()
 export class DatabaseRepository {
@@ -22,7 +23,7 @@ export class DatabaseRepository {
             },
             pool: {
                 min: 1,
-                max: 10,
+                max: 500,
             },
             acquireConnectionTimeout: 1000 * 10,
             debug: false,
@@ -31,7 +32,7 @@ export class DatabaseRepository {
         });
     }
 
-    async getSyncData() {
+    async getExcelData() {
         return this.db({ o: 'orders' })
             .innerJoin({ od: 'orders_detail' }, { 'o.orders_id': 'od.orders_id' })
             .innerJoin({ pa: 'payment' }, { 'o.orders_id': 'pa.orders_id' })
@@ -59,6 +60,7 @@ export class DatabaseRepository {
                 productPrice: 'pd.price',
             })
             .groupBy(['o.orders_id'])
+            .limit(EXPORT_DATA_LIMIT)
     }
 
     getStreamData(): PassThrough {
@@ -89,6 +91,7 @@ export class DatabaseRepository {
                 productPrice: 'pd.price',
             })
             .groupBy(['o.orders_id'])
+            .limit(EXPORT_DATA_LIMIT)
             .stream()
     }
 
@@ -122,6 +125,7 @@ export class DatabaseRepository {
         productPrice: 'pd.price',
       })
       .groupBy(['o.orders_id'])
+      .limit(EXPORT_DATA_LIMIT)
       .stream()
   }
 
@@ -132,7 +136,7 @@ export class DatabaseRepository {
     }
 
     async findOrderUserIds() {
-      return this.db('orders').select('userId');
+      return this.db('orders').select('userId').limit(EXPORT_DATA_LIMIT);
     }
 
     async findCategories() {
