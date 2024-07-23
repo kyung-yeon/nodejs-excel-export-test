@@ -29,8 +29,7 @@ export class DatabaseService {
 
   transform (userMap, categories): PassThrough {
     this.before();
-    console.log('c', categories);
-    return this.databaseRepository.getTransformData().pipe(
+    const pipe = this.databaseRepository.getTransformData().pipe(
       new Transform({
         readableObjectMode: true,
         writableObjectMode: true,
@@ -62,6 +61,8 @@ export class DatabaseService {
         },
       })
     );
+    this.after();
+    return pipe;
   }
 
   async findOrderUserIds () {

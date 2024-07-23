@@ -32,7 +32,7 @@ export class DatabaseRepository {
     }
 
     async getSyncData() {
-        const result = await this.db({ o: 'orders' })
+        return this.db({ o: 'orders' })
             .innerJoin({ od: 'orders_detail' }, { 'o.orders_id': 'od.orders_id' })
             .innerJoin({ pa: 'payment' }, { 'o.orders_id': 'pa.orders_id' })
             .innerJoin({ p: 'product' }, { 'od.product_id': 'p.product_id' })
@@ -59,8 +59,6 @@ export class DatabaseRepository {
                 productPrice: 'pd.price',
             })
             .groupBy(['o.orders_id'])
-
-        return result;
     }
 
     getStreamData(): PassThrough {

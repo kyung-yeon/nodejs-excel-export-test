@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from 'src/app.module';
-import { DatabaseRepository } from 'src/database/database.repository';
+import { AppModule } from 'src/apps/app.module';
+import { DatabaseRepository } from 'src/apps/database/database.repository';
 import { FIXTURE_NAMES } from './fixtures/name';
 import { FIXTURE_ADDRESSES } from './fixtures/address';
 import { FIXTURE_PROD_NAMES } from './fixtures/prod-name';
